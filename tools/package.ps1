@@ -1,6 +1,5 @@
 # Makes the two release files in release\: msyeett.driver-form-<version>.swoftyaddon and the same as .zip.
-# Run from the repo:  powershell -ExecutionPolicy Bypass -File tools\package.ps1
-# Build the DLL first (native\build.sh).
+# Double-click package.bat in the repo (it builds the DLL first). GitHub runs this too when a version tag is pushed.
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $manifest = Get-Content (Join-Path $root 'swofty.json') -Raw | ConvertFrom-Json

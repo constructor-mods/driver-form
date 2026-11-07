@@ -1,0 +1,13 @@
+# build output
+native/build/
+*.dll
+*.lib
+*.swoftyaddon
+
+# local files
+release/
+test-out/
+test-backup/
+telemetry/
+*.log
+*.local.*

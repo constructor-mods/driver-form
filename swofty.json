@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "id": "msyeett.driver-form",
+  "name": "Driver Form",
+  "version": "0.1.0",
+  "author": "msyeett",
+  "description": "AI drivers have a weekend form: some are flying, others drift off the pace and make mistakes. Offline only. To see who is in form, turn on the toasts and Messages in ADDON SETTINGS. They are off by default.",
+  "license": "MIT",
+  "kind": [
+    "native"
+  ],
+  "compat": {
+    "game": "f1_25",
+    "launcher": ">=1.8.10"
+  },
+  "requires": [
+    {
+      "id": "swofty.core",
+      "version": ">=0.1.0"
+    }
+  ],
+  "options": [
+    {
+      "id": "form_strength",
+      "type": "choice",
+      "label": "Form strength",
+      "description": "How big a driver's form is. Off is the normal AI. Subtle is about 0.8 s a lap either way, Normal 1.5, Wild 2.2, Chaos 3.5.",
+      "values": [
+        {
+          "value": "off",
+          "label": "Off"
+        },
+        {
+          "value": "subtle",
+          "label": "Subtle"
+        },
+        {
+          "value": "normal",
+          "label": "Normal"
+        },
+        {
+          "value": "wild",
+          "label": "Wild"
+        },
+        {
+          "value": "extreme",
+          "label": "Chaos"
+        }
+      ],
+      "default": "normal",
+      "binds": "native"
+    },
+    {
+      "id": "form_board",
+      "type": "toggle",
+      "label": "In form / Out of form toasts",
+      "description": "After the first lap, name the drivers who are in form and out of form. Off by default.",
+      "default": false,
+      "binds": "native"
+    },
+    {
+      "id": "bad_patches",
+      "type": "toggle",
+      "label": "Bad patches and mistakes",
+      "description": "Drivers sometimes lose time for a while, make a sudden mistake, or find some pace, depending on their form.",
+      "default": true,
+      "binds": "native"
+    },
+    {
+      "id": "messages_practice",
+      "type": "choice",
+      "label": "Messages: Practice",
+      "description": "How often a notification may appear in practice: mistakes, drivers struggling or on a charge, big position changes and pit stops. Low is about once a minute, Medium every 30 seconds, High every 15, Ultra as often as possible.",
+      "values": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "low",
+          "label": "Low"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "high",
+          "label": "High"
+        },
+        {
+          "value": "ultra",
+          "label": "Ultra"
+        }
+      ],
+      "default": "none",
+      "binds": "native"
+    },
+    {
+      "id": "messages_qualifying",
+      "type": "choice",
+      "label": "Messages: Qualifying",
+      "description": "How often a notification may appear in qualifying: mistakes, drivers struggling or on a charge, big position changes and pit stops. Low is about once a minute, Medium every 30 seconds, High every 15, Ultra as often as possible.",
+      "values": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "low",
+          "label": "Low"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "high",
+          "label": "High"
+        },
+        {
+          "value": "ultra",
+          "label": "Ultra"
+        }
+      ],
+      "default": "none",
+      "binds": "native"
+    },
+    {
+      "id": "messages_race",
+      "type": "choice",
+      "label": "Messages: Race",
+      "description": "How often a notification may appear in race: mistakes, drivers struggling or on a charge, big position changes and pit stops. Low is about once a minute, Medium every 30 seconds, High every 15, Ultra as often as possible.",
+      "values": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "low",
+          "label": "Low"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "high",
+          "label": "High"
+        },
+        {
+          "value": "ultra",
+          "label": "Ultra"
+        }
+      ],
+      "default": "none",
+      "binds": "native"
+    },
+    {
+      "id": "toast_mistakes",
+      "type": "toggle",
+      "label": "Show mistakes",
+      "description": "\"MISTAKE\" toasts. Needs a Messages setting above None.",
+      "default": true,
+      "binds": "native"
+    },
+    {
+      "id": "toast_struggling",
+      "type": "toggle",
+      "label": "Show struggling",
+      "description": "\"STRUGGLING\" toasts. Needs a Messages setting above None.",
+      "default": true,
+      "binds": "native"
+    },
+    {
+      "id": "toast_charge",
+      "type": "toggle",
+      "label": "Show on a charge",
+      "description": "\"ON A CHARGE\" toasts. Needs a Messages setting above None.",
+      "default": true,
+      "binds": "native"
+    },
+    {
+      "id": "toast_places",
+      "type": "toggle",
+      "label": "Show place changes",
+      "description": "\"UP\" and \"DOWN\" PLACES toasts. Needs a Messages setting above None.",
+      "default": true,
+      "binds": "native"
+    },
+    {
+      "id": "toast_pits",
+      "type": "toggle",
+      "label": "Show pit stops",
+      "description": "\"IN THE PITS\" toasts. Needs a Messages setting above None.",
+      "default": true,
+      "binds": "native"
+    }
+  ],
+  "operations": {
+    "native": [
+      {
+        "dll": "native/driver_form.dll"
+      }
+    ]
+  },
+  "icon": "icons/driver-form.png"
+}

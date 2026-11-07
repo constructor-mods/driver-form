@@ -2,10 +2,11 @@
   "schema_version": 1,
   "id": "msyeett.driver-form",
   "name": "Driver Form",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "msyeett",
   "description": "AI drivers have a weekend form: some are flying, others drift off the pace and make mistakes. Offline only. To see who is in form, turn on the toasts and Messages in ADDON SETTINGS. They are off by default.",
   "license": "MIT",
+  "repository": "https://github.com/constructor-mods/driver-form",
   "kind": [
     "native"
   ],

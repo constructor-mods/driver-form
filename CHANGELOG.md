@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3
+- Fixed a burst of toasts after unpausing: mistakes, bad patches and hot spells now wait while the game is paused.
+  Needs launcher 1.8.33 or newer.
+
 ## 0.1.2
 - Fixed heavy lag when the addon can't read the grid: it kept retrying twice a second. It now backs off after a few tries.
 - Fixed small frame spikes every 10 seconds.

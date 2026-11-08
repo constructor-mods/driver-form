@@ -15,6 +15,7 @@
 #include <swofty/storage.hpp>
 #include <swofty/systems/cars.hpp>
 #include <swofty/systems/sessions.hpp>
+#include <swofty/view.hpp>
 
 #include "ai_driver.hpp"
 #include "ai_writes.hpp"
@@ -62,6 +63,7 @@ void arm()
     g_cars_at_crossing.fill(0);
     g_build_failures = 0;
     g_race_running = false;
+    g_paused = false;
     g_armed = true;
 }
 
@@ -94,6 +96,28 @@ void update_ownership(Driver &driver, bool human)
         double(driver.form), double(shift_of(driver)), double(quality_of(driver)));
 }
 
+// Holds the race clock while the game is paused: no patches start or end, and on resume every timer moves on by
+// the length of the pause.
+bool check_pause(Clock::time_point now)
+{
+    bool paused = view::paused();
+    if (paused && !g_paused) {
+        g_paused = true;
+        g_paused_since = now;
+        log("[driver-form] paused");
+    } else if (!paused && g_paused) {
+        g_paused = false;
+        auto length = now - g_paused_since;
+        g_race_started += length;
+        for (Driver &driver : g_drivers) {
+            driver.patch_until += length;
+            driver.next_event += length;
+        }
+        log("[driver-form] resumed after %.0f s", std::chrono::duration<double>(length).count());
+    }
+    return paused;
+}
+
 // Runs twice a second: builds the grid when the session is ready, then keeps every driver's form written.
 void frame(double, void *)
 {
@@ -106,6 +130,9 @@ void frame(double, void *)
         return;
     }
     g_last_tick = now;
+    if (check_pause(now)) {
+        return;
+    }
     if (g_drivers.empty()) {
         if (g_build_failures >= 10 && now - g_last_build_try < std::chrono::seconds(10)) {
             return;

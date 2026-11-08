@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "msyeett.driver-form",
   "name": "Driver Form",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": "msyeett",
   "description": "AI drivers have a weekend form: some are flying, others drift off the pace and make mistakes. Offline only. To see who is in form, turn on the toasts and Messages in ADDON SETTINGS. They are off by default.",
   "license": "MIT",

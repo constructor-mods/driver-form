@@ -86,6 +86,8 @@ inline int g_build_failures = 0; // after a few, the grid is only tried every 10
 inline Clock::time_point g_last_toast;
 inline Clock::time_point g_race_started;
 inline bool g_race_running = false;
+inline bool g_paused = false;
+inline Clock::time_point g_paused_since;
 inline std::mutex g_mutex;
 inline std::set<uint32_t> g_player_cars;          // cars ever seen under human control, never touched again
 inline long long g_week_time = 0;                 // when this weekend's forms were rolled

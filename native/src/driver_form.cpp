@@ -60,6 +60,7 @@ void arm()
     }
     g_patches_on = option<bool>("bad_patches");
     g_cars_at_crossing.fill(0);
+    g_build_failures = 0;
     g_race_running = false;
     g_armed = true;
 }
@@ -106,8 +107,15 @@ void frame(double, void *)
     }
     g_last_tick = now;
     if (g_drivers.empty()) {
-        if (!build()) {
+        if (g_build_failures >= 10 && now - g_last_build_try < std::chrono::seconds(10)) {
+            return;
+        }
+        g_last_build_try = now;
+        if (build()) {
+            g_build_failures = 0;
+        } else {
             g_drivers.clear();
+            g_build_failures++;
         }
         return;
     }
@@ -115,11 +123,11 @@ void frame(double, void *)
     // re-checked every 10 s, and control is read for one car per tick (it takes that car about 0.25 ms).
     if (now - g_last_system_check >= std::chrono::seconds(10)) {
         g_last_system_check = now;
-        ai_driver::GameDrivers game;
-        if (!ai_driver::find(game)) {
+        uintptr_t records = ai_driver::records_start();
+        if (!records) {
             return;
         }
-        if (game.records != g_records) { // the game rebuilt its drivers: the cached pointers are gone
+        if (records != g_records) { // the game rebuilt its drivers: the cached pointers are gone
             g_drivers.clear();
             return;
         }

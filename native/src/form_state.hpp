@@ -81,6 +81,8 @@ inline bool g_patches_on = true;
 inline bool g_armed = false;
 inline bool g_board_done = false;
 inline Clock::time_point g_last_tick;
+inline Clock::time_point g_last_build_try;
+inline int g_build_failures = 0; // after a few, the grid is only tried every 10 s
 inline Clock::time_point g_last_toast;
 inline Clock::time_point g_race_started;
 inline bool g_race_running = false;

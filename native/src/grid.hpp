@@ -213,10 +213,11 @@ inline bool read_entrants(const ai_driver::GameDrivers &game, std::vector<Entran
 }
 
 // stat_id -> initials from the game DB table entrants.drivers
+// The table does not change while the game runs, so it is read once and kept.
 inline std::map<int64_t, std::string> driver_initials()
 {
-    std::map<int64_t, std::string> initials_by_id;
-    if (!db::available()) {
+    static std::map<int64_t, std::string> initials_by_id;
+    if (!initials_by_id.empty() || !db::available()) {
         return initials_by_id;
     }
     db::Cursor cursor{};

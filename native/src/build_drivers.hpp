@@ -112,25 +112,36 @@ inline bool build()
     if (!ai_driver::find(game) || !read_entrants(game, entrants)) {
         return false;
     }
-    auto initials_by_id = driver_initials();
     for (const Entrant &entrant : entrants) {
         Driver driver;
         driver.car = entrant.car;
         driver.stat_id = entrant.driver;
+        if (entrant.car == 0xff) {
+            if (g_build_failures == 0) {
+                log("[driver-form] grid has no car numbers yet, waiting");
+            }
+            return false;
+        }
         if (!ai_driver::read_stock(game, entrant.car, driver.stock) || driver.stock.characteristics[4] <= 0 ||
             driver.stock.base_lap_time <= 0) {
-            log("[driver-form] car %u not ready: speed_in %.3f base %.3f", unsigned(entrant.car),
-                double(driver.stock.characteristics[4]), double(driver.stock.base_lap_time));
+            if (g_build_failures < 3) {
+                log("[driver-form] car %u not ready: speed_in %.3f base %.3f", unsigned(entrant.car),
+                    double(driver.stock.characteristics[4]), double(driver.stock.base_lap_time));
+            }
             return false;
         }
         driver.state = ai_driver::state_of(game, entrant.car);
         driver.master = ai_driver::master_of(game, entrant.car);
         driver.profile = ai_driver::profile_of(game, entrant.car);
-        set_label(driver, entrant, game, initials_by_id);
         g_drivers.push_back(std::move(driver));
     }
     if (g_drivers.empty()) {
         return false;
+    }
+    // The names are read once, after every car is ready, because walking the table is slow.
+    auto initials_by_id = driver_initials();
+    for (size_t index = 0; index < g_drivers.size(); index++) {
+        set_label(g_drivers[index], entrants[index], game, initials_by_id);
     }
     g_records = game.records;
     give_weekend_forms();

@@ -101,6 +101,20 @@ inline bool find(GameDrivers &game)
     return true;
 }
 
+// Where the game's records start. Three reads instead of find(): enough to see that the game rebuilt its drivers.
+inline uintptr_t records_start()
+{
+    uintptr_t slot = manager_slot();
+    uintptr_t manager = 0;
+    uintptr_t system = 0;
+    uintptr_t records_begin = 0;
+    if (!slot || !mem::read(slot, manager) || !manager || !mem::read(manager + 0x38, system) || !system ||
+        !mem::read(system + 0xa8, records_begin)) {
+        return 0;
+    }
+    return records_begin;
+}
+
 // The record of a car.
 inline uintptr_t record_of(const GameDrivers &game, uint32_t car)
 {

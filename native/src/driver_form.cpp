@@ -130,6 +130,9 @@ void frame(double, void *)
         return;
     }
     g_last_tick = now;
+    // The game's big memory blocks stay where they are, so a check of one is trusted for two seconds instead of
+    // being asked again for every read.
+    mem::Trust trust(2000);
     if (check_pause(now)) {
         return;
     }

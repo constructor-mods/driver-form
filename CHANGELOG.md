@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4
+- Faster start of a session: the grid is read with far fewer memory checks, and the slow table of driver initials
+  is only read when the game has no name for a driver. Shorter pause on the loading screen.
+- Shows as tested on Steam in the launcher's Addon Browser, in the AI category. Needs launcher 1.8.36 or newer.
+
 ## 0.1.3
 - Fixed a burst of toasts after unpausing: mistakes, bad patches and hot spells now wait while the game is paused.
   Needs launcher 1.8.33 or newer.

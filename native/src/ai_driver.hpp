@@ -25,6 +25,7 @@ struct GameDrivers {
     uintptr_t profiles = 0;
     size_t record_count = 0;
     size_t profile_count = 0;
+    uint8_t vehicles[32]{}; // the car each record belongs to, read once by find()
 };
 
 inline uintptr_t manager_slot()
@@ -98,6 +99,13 @@ inline bool find(GameDrivers &game)
     game.record_count = size_t((records_end - records_begin) / kRecordStride);
     game.profiles = profiles_begin;
     game.profile_count = size_t((profiles_end - profiles_begin) / kProfileStride);
+    // One check for the whole block, then every record's car is read straight away.
+    if (!mem::readable(game.records, game.record_count * kRecordStride)) {
+        return false;
+    }
+    for (size_t index = 0; index < game.record_count; index++) {
+        game.vehicles[index] = *reinterpret_cast<const uint8_t *>(game.records + index * kRecordStride);
+    }
     return true;
 }
 
@@ -119,10 +127,8 @@ inline uintptr_t records_start()
 inline uintptr_t record_of(const GameDrivers &game, uint32_t car)
 {
     for (size_t index = 0; index < game.record_count; index++) {
-        uint8_t vehicle = 0xff;
-        uintptr_t record = game.records + index * kRecordStride;
-        if (mem::read(record, vehicle) && vehicle == car) {
-            return record;
+        if (game.vehicles[index] == car) {
+            return game.records + index * kRecordStride;
         }
     }
     return 0;

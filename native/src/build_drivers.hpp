@@ -11,6 +11,7 @@
 #include "form_state.hpp"
 #include "grid.hpp"
 
+#include <chrono>
 #include <cmath>
 #include <ctime>
 #include <map>
@@ -19,9 +20,19 @@
 
 namespace driver_form {
 
-// The name shown for a driver: the game's own name if it has one, otherwise their initials, otherwise the car number.
-inline void set_label(Driver &driver, const Entrant &entrant, const ai_driver::GameDrivers &game,
-                      const std::map<int64_t, std::string> &initials_by_id)
+// The name the game shows for a driver. Most sessions have one for every car, so nothing slower is needed.
+inline bool set_game_label(Driver &driver, const Entrant &entrant, const ai_driver::GameDrivers &game)
+{
+    std::string shown = game_name(game, entrant.car);
+    if (shown.empty()) {
+        return false;
+    }
+    driver.label = shown;
+    return true;
+}
+
+// The name for a driver the game has no name for: their initials, otherwise the car number.
+inline void set_label(Driver &driver, const Entrant &entrant, const std::map<int64_t, std::string> &initials_by_id)
 {
     auto found = initials_by_id.find(entrant.driver);
     if (found != initials_by_id.end()) {
@@ -32,20 +43,32 @@ inline void set_label(Driver &driver, const Entrant &entrant, const ai_driver::G
     if (!entrant.label.empty()) {
         db::Cursor cursor{};
         db::Value initials{};
-        db::Value id{};
         if (db::row("entrants.drivers", entrant.label, &cursor) == db::Result::ok) {
             if (db::cell(&cursor, "initials", &initials) == db::Result::ok && initials.s && *initials.s) {
                 driver.label = initials.s;
             }
-            if (db::cell(&cursor, "stat_id", &id) == db::Result::ok) {
-                driver.stat_id = uint16_t(id.i);
-            }
         }
     }
-    std::string shown = game_name(game, entrant.car);
-    if (!shown.empty()) {
-        driver.label = shown;
+}
+
+// The driver's id in the game's table, when the grid came from the event context.
+inline void set_stat_id(Driver &driver, const Entrant &entrant)
+{
+    if (entrant.label.empty()) {
+        return;
     }
+    db::Cursor cursor{};
+    db::Value id{};
+    if (db::row("entrants.drivers", entrant.label, &cursor) == db::Result::ok &&
+        db::cell(&cursor, "stat_id", &id) == db::Result::ok) {
+        driver.stat_id = uint16_t(id.i);
+    }
+}
+
+// Milliseconds since a point in time, for the build log.
+inline double milliseconds_since(Clock::time_point start)
+{
+    return std::chrono::duration<double, std::milli>(Clock::now() - start).count();
 }
 
 // Rolls a new weekend's forms, or keeps the saved ones, and gives every driver theirs.
@@ -107,6 +130,7 @@ inline std::string set_message_level(const ai_driver::GameDrivers &game)
 // Reads the grid and gives every driver their form. Returns false until the session is ready.
 inline bool build()
 {
+    auto start = Clock::now();
     ai_driver::GameDrivers game;
     std::vector<Entrant> entrants;
     if (!ai_driver::find(game) || !read_entrants(game, entrants)) {
@@ -138,16 +162,31 @@ inline bool build()
     if (g_drivers.empty()) {
         return false;
     }
-    // The names are read once, after every car is ready, because walking the table is slow.
-    auto initials_by_id = driver_initials();
+    auto cars_done = Clock::now();
+    // The game's own names first. The table of initials is slow to walk, so it is only read for drivers without one.
+    std::vector<size_t> unnamed;
     for (size_t index = 0; index < g_drivers.size(); index++) {
-        set_label(g_drivers[index], entrants[index], game, initials_by_id);
+        set_stat_id(g_drivers[index], entrants[index]);
+        if (!set_game_label(g_drivers[index], entrants[index], game)) {
+            unnamed.push_back(index);
+        }
     }
+    if (!unnamed.empty()) {
+        const auto &initials_by_id = driver_initials();
+        for (size_t index : unnamed) {
+            set_label(g_drivers[index], entrants[index], initials_by_id);
+        }
+    }
+    auto names_done = Clock::now();
     g_records = game.records;
     give_weekend_forms();
     std::string level = set_message_level(game);
     log("[driver-form] %zu drivers, %.1f s a lap at full form, session kind %d, messages %s", g_drivers.size(),
         double(g_strength.seconds), g_session_kind, level.c_str());
+    log("[driver-form] grid built in %.1f ms: cars %.1f, names %.1f (%zu without a game name), weekend %.1f",
+        milliseconds_since(start), std::chrono::duration<double, std::milli>(cars_done - start).count(),
+        std::chrono::duration<double, std::milli>(names_done - cars_done).count(), unnamed.size(),
+        milliseconds_since(names_done));
     return true;
 }
 

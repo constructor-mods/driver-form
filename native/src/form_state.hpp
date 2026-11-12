@@ -63,7 +63,6 @@ struct Driver {
     Clock::time_point patch_until;
     Clock::time_point next_event;
     bool human = true;     // the first tick decides
-    bool seen = false;
     int crossings = 0;
     int last_position = 0;
     int pit_crossing = -1;
@@ -72,7 +71,9 @@ struct Driver {
 inline std::vector<Driver> g_drivers;
 inline uintptr_t g_records = 0; // the record table the cached pointers belong to
 inline Clock::time_point g_last_system_check;
-inline size_t g_next_control_index = 0;
+inline Clock::time_point g_last_control_check;
+inline bool g_check_control = true; // read who drives every car on the next tick
+inline bool g_time_trial = false;   // a Time Trial is left alone: its cars are your own ghosts
 inline std::map<uint16_t, float> g_week; // this weekend's rolls, by driver
 inline float g_week_key = -1;            // the track's base target time tells one weekend from the next
 inline std::mt19937 g_random{std::random_device{}()};

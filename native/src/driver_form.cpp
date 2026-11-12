@@ -55,6 +55,10 @@ void arm()
 {
     stop();
     g_last_tick = Clock::now(); // leaves the game time to take the cleared values before they are read as stock
+    if (g_time_trial) {
+        log("[driver-form] time trial, left alone");
+        return;
+    }
     if (!strength_of(option<std::string>("form_strength"), g_strength)) {
         log("[driver-form] form strength off, normal AI");
         return;
@@ -64,20 +68,20 @@ void arm()
     g_build_failures = 0;
     g_race_running = false;
     g_paused = false;
+    g_check_control = true;
     g_armed = true;
 }
 
-// Checks whether a car is yours. Once yours, always yours: the game hands your car over in the pits.
-void check_control(Driver &driver, size_t index)
+// Finds the cars you drive. Once yours, always yours: the game hands your car over in the pits.
+// Asking who drives a car is slow, so every car is asked in one go: when the grid is built, then every 10 s.
+// In between, the game tells us when it hands a car to you.
+void check_control()
 {
-    bool first_check = driver.human && !g_player_cars.count(driver.car) && !driver.seen;
-    if (index != g_next_control_index && !first_check) {
-        return;
-    }
-    driver.seen = true;
-    auto control = cars::live::Car(driver.car).control();
-    if (control && control->mode == sessions::Control::human) {
-        g_player_cars.insert(driver.car);
+    for (const Driver &driver : g_drivers) {
+        auto control = cars::live::Car(driver.car).control();
+        if (control && control->mode == sessions::Control::human) {
+            g_player_cars.insert(driver.car);
+        }
     }
 }
 
@@ -149,9 +153,16 @@ void frame(double, void *)
         }
         return;
     }
-    // Guarded reads cost about 0.5 ms each here, so the tick does as few as it can: the game's driver system is
-    // re-checked every 10 s, and control is read for one car per tick (it takes that car about 0.25 ms).
-    if (now - g_last_system_check >= std::chrono::seconds(10)) {
+    // Two slow checks (about 5 ms each), each every 10 s and 5 s apart, never both in one tick: who drives each
+    // car, and is the game's driver system still the one we found.
+    if (g_check_control || now - g_last_control_check >= std::chrono::seconds(10)) {
+        if (g_check_control) {
+            g_last_system_check = now - std::chrono::seconds(5);
+        }
+        g_check_control = false;
+        g_last_control_check = now;
+        check_control();
+    } else if (now - g_last_system_check >= std::chrono::seconds(10)) {
         g_last_system_check = now;
         uintptr_t records = ai_driver::records_start();
         if (!records) {
@@ -162,10 +173,7 @@ void frame(double, void *)
             return;
         }
     }
-    g_next_control_index = (g_next_control_index + 1) % g_drivers.size();
-    for (size_t index = 0; index < g_drivers.size(); index++) {
-        Driver &driver = g_drivers[index];
-        check_control(driver, index);
+    for (Driver &driver : g_drivers) {
         bool human = g_player_cars.count(driver.car) != 0;
         if (human != driver.human) {
             update_ownership(driver, human);
@@ -211,6 +219,7 @@ SWOFTY_REGISTER
         } else {
             g_session_kind = 0;
         }
+        g_time_trial = view && view->type == events::SessionType::time_trial;
         log("[driver-form] session.start: %zu entrants in the event context, session '%s', kind %d",
             g_context_entrants.size(), view ? view->session.c_str() : "?", g_session_kind);
         arm();
@@ -219,6 +228,7 @@ SWOFTY_REGISTER
     events::on("race.start").after([](std::span<const std::byte>, const events::Context &) {
         std::lock_guard<std::mutex> lock(g_mutex);
         g_session_kind = 2;
+        g_time_trial = false;
         arm();
         g_race_running = true;
         g_race_started = Clock::now();
@@ -227,6 +237,17 @@ SWOFTY_REGISTER
         std::lock_guard<std::mutex> lock(g_mutex);
         on_lap(event.car.index());
     });
+    // The game hands a car to you: it's yours from now on, the next tick leaves it alone.
+    events::on<sessions::events::PlayerControl>().after(
+        [](const sessions::events::PlayerControl &event, const events::Context &) {
+            if (event.to != sessions::Control::human) {
+                return;
+            }
+            std::lock_guard<std::mutex> lock(g_mutex);
+            if (g_player_cars.insert(event.car.index()).second) {
+                log("[driver-form] car %u handed to you", event.car.index());
+            }
+        });
     events::on<sessions::events::PitStop>().after([](const sessions::events::PitStop &event, const events::Context &) {
         std::lock_guard<std::mutex> lock(g_mutex);
         on_pit(event.car);

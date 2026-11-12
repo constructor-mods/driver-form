@@ -26,7 +26,7 @@ Find these in **ADDON SETTINGS**. Everything you can see on screen is off by def
 - **Show mistakes**, **struggling**, **on a charge**, **place changes** and **pit stops**: pick the notifications you want.
 
 ### Needs
-- Swofty Launcher 1.8.10 or newer.
+- Swofty Launcher 1.8.36 or newer.
 - Offline sessions only, like all modded play.
 
 ### Credits

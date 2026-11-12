@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.5
+- Fixed a small stutter every half second while driving: who drives each car is now checked every 10 seconds
+  instead of every frame.
+- Time Trial is left alone: no form for your ghosts or rival times.
+- Fixed your own car getting a form for a few seconds at the start of a session.
+
 ## 0.1.4
 - Faster start of a session: the grid is read with far fewer memory checks, and the slow table of driver initials
   is only read when the game has no name for a driver. Shorter pause on the loading screen.

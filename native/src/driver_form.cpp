@@ -196,6 +196,8 @@ SWOFTY_REGISTER
 {
     events::on("session.start").after([](std::span<const std::byte>, const events::Context &context) {
         std::lock_guard<std::mutex> lock(g_mutex);
+        // Your car is learned again each session: the game hands it over right after this, before the grid is built.
+        g_player_cars.clear();
         g_context_entrants.clear();
         for (const auto &participant : context.participants()) {
             Entrant entrant;

@@ -85,7 +85,6 @@ inline void give_weekend_forms()
         g_week.clear();
         g_week_key = key;
         g_week_time = now;
-        g_player_cars.clear();
         roll_grid(g_drivers);
         log("[driver-form] new weekend, base lap %.3f", double(key));
         save_week();

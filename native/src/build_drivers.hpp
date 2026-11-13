@@ -7,6 +7,7 @@
 #include <swofty/registry.hpp>
 
 #include "ai_driver.hpp"
+#include "driver_gaps.hpp"
 #include "form_roll.hpp"
 #include "form_state.hpp"
 #include "grid.hpp"
@@ -179,6 +180,12 @@ inline bool build()
     auto names_done = Clock::now();
     g_records = game.records;
     give_weekend_forms();
+    if (g_strength.seconds == 0) { // real driver gaps only: no form
+        for (Driver &driver : g_drivers) {
+            driver.form = 0;
+        }
+    }
+    give_gaps();
     std::string level = set_message_level(game);
     log("[driver-form] %zu drivers, %.1f s a lap at full form, session kind %d, messages %s", g_drivers.size(),
         double(g_strength.seconds), g_session_kind, level.c_str());

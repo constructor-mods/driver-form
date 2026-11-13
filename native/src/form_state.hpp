@@ -57,6 +57,7 @@ struct Driver {
     uintptr_t master = 0;
     uintptr_t profile = 0;
     float form = 0;        // -1 bad .. +1 good
+    float gap = 0;         // seconds a lap from the real driver gaps
     ai_driver::Stock stock;
     std::vector<Layer> layers;
     Patch patch = Patch::none;

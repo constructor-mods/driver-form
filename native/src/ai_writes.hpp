@@ -19,7 +19,7 @@ constexpr const char *kBlocking = "ai.blocking.max_blocking_distance"; // how fa
 // Out-of-form drivers lose time through their driving as well, so the dial is smaller on that side.
 inline float shift_of(const Driver &driver)
 {
-    float shift = 0;
+    float shift = driver.gap;
     if (driver.form < 0) {
         shift = -driver.form * g_strength.seconds * 0.6f;
     } else {

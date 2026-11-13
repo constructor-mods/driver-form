@@ -59,11 +59,17 @@ void arm()
         log("[driver-form] time trial, left alone");
         return;
     }
-    if (!strength_of(option<std::string>("form_strength"), g_strength)) {
-        log("[driver-form] form strength off, normal AI");
-        return;
-    }
+    g_gaps_on = option<bool>("real_gaps");
     g_patches_on = option<bool>("bad_patches");
+    if (!strength_of(option<std::string>("form_strength"), g_strength)) {
+        if (!g_gaps_on) {
+            log("[driver-form] form strength off, normal AI");
+            return;
+        }
+        log("[driver-form] form strength off, real driver gaps only");
+        g_strength = {0.0f, 0.0f, 0.0f, 0.0f};
+        g_patches_on = false;
+    }
     g_cars_at_crossing.fill(0);
     g_build_failures = 0;
     g_race_running = false;

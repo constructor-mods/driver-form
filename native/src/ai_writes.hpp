@@ -21,9 +21,9 @@ inline float shift_of(const Driver &driver)
 {
     float shift = driver.gap;
     if (driver.form < 0) {
-        shift = -driver.form * g_strength.seconds * 0.6f;
+        shift -= driver.form * g_strength.seconds * 0.6f;
     } else {
-        shift = -driver.form * g_strength.seconds;
+        shift -= driver.form * g_strength.seconds;
     }
     if (driver.patch == Patch::bad) {
         shift += 1.0f * g_strength.patch;

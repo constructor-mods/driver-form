@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1
+- Fixed Real driver gaps: the gaps now reach the cars' lap times (in 0.2.0 only the form did).
+- Cheaper memory checks with Swofty Launcher 1.9.30 or newer (fewer small hitches).
+
 ## 0.2.0
 - New setting **Real driver gaps** (off by default): team-mates are as far apart as in real qualifying, from the
   2026 averages (2025 with the 2025 line-up). Alonso is about 0.35 s quicker than Stroll, Norris and Piastri stay

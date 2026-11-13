@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0
+- New setting **Real driver gaps** (off by default): team-mates are as far apart as in real qualifying, from the
+  2026 averages (2025 with the 2025 line-up). Alonso is about 0.35 s quicker than Stroll, Norris and Piastri stay
+  close. The car's pace stays the game's. Works with Form strength Off too, then only the gaps change.
+
 ## 0.1.5
 - Fixed a small stutter every half second while driving: who drives each car is now checked every 10 seconds
   instead of every frame.

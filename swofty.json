@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "msyeett.driver-form",
   "name": "Driver Form",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "author": "msyeett",
   "description": "AI drivers have a weekend form: some are flying, others drift off the pace and make mistakes. Offline only. To see who is in form, turn on the toasts and Messages in ADDON SETTINGS. They are off by default.",
   "license": "MIT",
@@ -53,6 +53,14 @@
         }
       ],
       "default": "normal",
+      "binds": "native"
+    },
+    {
+      "id": "real_gaps",
+      "type": "toggle",
+      "label": "Real driver gaps",
+      "description": "Team-mates are as far apart as in real qualifying (2026, or 2025 with the 2025 line-up): Alonso about 0.35 s ahead of Stroll, Norris and Piastri close. The car's pace stays the game's. Works with Form strength Off too.",
+      "default": false,
       "binds": "native"
     },
     {
